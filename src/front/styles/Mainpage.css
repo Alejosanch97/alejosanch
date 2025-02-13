@@ -1,0 +1,285 @@
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.sidebar {
+    width: 300px;
+    background: #2F4050;
+    padding: 2rem;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.profile-image-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid rgba(255,255,255,0.2);
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upload-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.5);
+    padding: 0.5rem;
+    cursor: pointer;
+    color: white;
+}
+
+.file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.user-stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 2rem 0;
+    padding: 1rem 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    width: 100%;
+}
+
+.stat-item h4 {
+    font-size: 0.9rem;
+    color: #a3a3a3;
+    margin-bottom: 0.5rem;
+}
+
+.stat-item p {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0;
+    color: white;
+}
+
+.sidebar-nav {
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    background: none;
+    border: none;
+    color: #a3a3a3;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.nav-item:hover, .nav-item.active {
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.nav-item i {
+    width: 20px;
+    margin-right: 1rem;
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 1rem;
+    margin-top: 2rem;
+    background: rgba(255,0,0,0.1);
+    border: none;
+    color: #ff4d4d;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(255,0,0,0.2);
+}
+
+.logout-btn i {
+    margin-right: 0.5rem;
+}
+
+.main-content {
+    flex: 1;
+    padding: 2rem;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.date-range {
+    background: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.dashboard-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.chart-container {
+    margin-top: 1rem;
+}
+
+.project-list {
+    margin-top: 1rem;
+}
+
+.project-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.project-info {
+    flex: 1;
+    margin-right: 1rem;
+}
+
+.project-info h5 {
+    margin-bottom: 0.5rem;
+}
+
+.progress {
+    height: 8px;
+    background-color: #f0f0f0;
+}
+
+/* Estilos para la sección del menú */
+.menu-section {
+    width: 100%;
+    margin-top: 2rem;
+    padding: 0 1rem;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    color: #a3a3a3;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: translateX(5px);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.menu-item i {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 1.1rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 12px;
+    border-radius: 10px;
+}
+
+.menu-item span {
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+/* Estilo activo (puedes agregarlo manualmente a cualquier menu-item para probar) */
+.menu-item.active {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+    color: white;
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.menu-item.active i {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Ajustes para el sidebar que contiene el menú */
+.sidebar {
+    background: #2F4050;
+    padding: 2rem 1rem;
+}
+
+/* Estilo especial para el botón de logout */
+button.btn.btn-danger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    background: rgba(255, 59, 48, 0.1);
+    border: 1px solid rgba(255, 59, 48, 0.2);
+    color: #ff3b30;
+    transition: all 0.3s ease;
+    margin-top: 2rem;
+    border-radius: 12px;
+}
+
+button.btn.btn-danger:hover {
+    background: rgba(255, 59, 48, 0.2);
+    border-color: rgba(255, 59, 48, 0.3);
+    transform: translateY(-2px);
+}
+
+button.btn.btn-danger i {
+    margin-right: 8px;
+}
