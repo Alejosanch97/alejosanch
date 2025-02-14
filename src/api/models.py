@@ -77,8 +77,21 @@ class Form(db.Model):
     status = db.Column(db.String(20), default='active')  # active, inactive, draft
     
     # Relaciones
-    questions = db.relationship('Question', backref='form', lazy=True)
-    responses = db.relationship('FormResponse', backref='form', lazy=True)
+    questions = db.relationship('Question', backref='form', lazy=True, 
+                              cascade="all, delete-orphan")
+    responses = db.relationship('FormResponse', backref='form', lazy=True,
+                              cascade="all, delete-orphan")
+    def serialize(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "created_by": self.created_by,
+            "company_id": self.company_id,
+            "created_at": self.created_at.isoformat(),
+            "status": self.status,
+            "questions": [question.serialize() for question in self.questions]
+        }
 
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -89,8 +102,10 @@ class Question(db.Model):
     order = db.Column(db.Integer, nullable=False)
     
     # Relaciones
-    options = db.relationship('QuestionOption', backref='question', lazy=True)
-    answers = db.relationship('Answer', backref='question', lazy=True)
+    options = db.relationship('QuestionOption', backref='question', lazy=True,
+                            cascade="all, delete-orphan")
+    answers = db.relationship('Answer', backref='question', lazy=True,
+                            cascade="all, delete-orphan")
     
     def serialize(self):
         return {
@@ -128,6 +143,15 @@ class FormResponse(db.Model):
     # Relaciones
     answers = db.relationship('Answer', backref='form_response', lazy=True)
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "form_id": self.form_id,
+            "user_id": self.user_id,
+            "created_at": self.created_at.isoformat(),
+            "answers": [answer.serialize() for answer in self.answers]
+        }
+
 class Answer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     form_response_id = db.Column(db.Integer, db.ForeignKey('form_response.id'), nullable=False)
@@ -135,9 +159,18 @@ class Answer(db.Model):
     answer_text = db.Column(db.Text)
     selected_options = db.relationship('QuestionOption', secondary='answer_options',
                                      backref=db.backref('answers', lazy=True))
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "question_id": self.question_id,
+            "answer_text": self.answer_text,
+            "selected_options": [option.id for option in self.selected_options]
+        }
 
 # Tabla de asociación para respuestas de opción múltiple
 answer_options = db.Table('answer_options',
     db.Column('answer_id', db.Integer, db.ForeignKey('answer.id'), primary_key=True),
     db.Column('option_id', db.Integer, db.ForeignKey('question_option.id'), primary_key=True)
 )
+

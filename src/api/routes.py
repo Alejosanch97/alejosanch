@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, url_for, Blueprint
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
-from api.models import db, User, Company, Location, Form, Question, QuestionOption
+from api.models import db, User, Company, Location, Form, Question, QuestionOption, FormResponse, Answer
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from datetime import datetime
@@ -255,12 +255,6 @@ def delete_form(form_id):
         if not form:
             return jsonify({"message": "Form not found"}), 404
         
-        # Eliminar las preguntas y opciones relacionadas
-        for question in form.questions:
-            for option in question.options:
-                db.session.delete(option)
-            db.session.delete(question)
-            
         db.session.delete(form)
         db.session.commit()
         
@@ -268,4 +262,44 @@ def delete_form(form_id):
         
     except Exception as e:
         db.session.rollback()
+        return jsonify({"message": str(e)}), 400
+    
+@api.route('/forms/<int:form_id>/respond', methods=['POST'])
+def submit_form_response(form_id):
+    try:
+        data = request.get_json()
+        
+        # Crear la respuesta del formulario
+        form_response = FormResponse(
+            form_id=form_id,
+            user_id=data['user_id']
+        )
+        
+        db.session.add(form_response)
+        db.session.flush()  # Para obtener el ID de form_response
+        
+        # Procesar cada respuesta
+        for answer_data in data['answers']:
+            answer = Answer(
+                form_response_id=form_response.id,
+                question_id=answer_data['question_id'],
+                answer_text=answer_data['answer_text']
+            )
+            
+            db.session.add(answer)
+            
+            # Si hay opciones seleccionadas, agregarlas
+            if answer_data['selected_options']:
+                options = QuestionOption.query.filter(
+                    QuestionOption.id.in_([int(opt_id) for opt_id in answer_data['selected_options']])
+                ).all()
+                answer.selected_options.extend(options)
+        
+        db.session.commit()
+        
+        return jsonify(form_response.serialize()), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        print("Error processing form response:", str(e))
         return jsonify({"message": str(e)}), 400

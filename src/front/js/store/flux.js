@@ -360,24 +360,27 @@ const getState = ({ getStore, getActions, setStore }) => {
             submitFormResponse: async (formId, answers) => {
                 try {
                     const store = getStore();
-                    const resp = await fetch(`${process.env.BACKEND_URL}/api/forms/${formId}/respond`, {
+                    // Asegurarse de que la URL esté bien formada
+                    const baseUrl = process.env.BACKEND_URL.replace(/\/+$/, ''); // Remover slashes al final si existen
+                    const resp = await fetch(`${baseUrl}/api/forms/${formId}/respond`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
                         },
                         body: JSON.stringify({
-                            form_id: formId,
+                            form_id: parseInt(formId),
                             user_id: store.currentUser.id,
                             answers: answers
                         })
                     });
-
-                    const data = await resp.json();
-                    
+            
                     if (!resp.ok) {
-                        throw new Error(data.message || 'Error al enviar respuesta');
+                        const errorData = await resp.json();
+                        throw new Error(errorData.message || 'Error al enviar respuesta');
                     }
                     
+                    const data = await resp.json();
                     return data;
                 } catch (error) {
                     console.error("Error submitting form response:", error);
