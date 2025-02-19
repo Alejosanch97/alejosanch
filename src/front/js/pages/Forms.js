@@ -32,6 +32,9 @@ export const Forms = () => {
         { value: 'locations', label: 'Selección de Ubicaciones' }
     ];
 
+    const [showResponses, setShowResponses] = useState(false);
+    const [selectedFormId, setSelectedFormId] = useState(null);
+
     useEffect(() => {
         const loadData = async () => {
             // Cargar formularios
@@ -108,6 +111,11 @@ export const Forms = () => {
         navigate(`/forms/${formId}/respond`);
     };
 
+    const handleViewResponses = (e, formId) => {
+        e.stopPropagation();
+        navigate(`/forms/${formId}/responses`);
+    };
+
     return (
         <div className="container py-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -156,6 +164,13 @@ export const Forms = () => {
                                         >
                                             <i className="fas fa-pencil-alt"></i>
                                             <span>Responder</span>
+                                        </button>
+                                        <button 
+                                            className="action-button view-button"
+                                            onClick={(e) => handleViewResponses(e, form.id)}
+                                        >
+                                            <i className="fas fa-list"></i>
+                                            <span>Respuestas</span>
                                         </button>
                                         <button 
                                             className="action-button delete-button"

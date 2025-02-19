@@ -161,12 +161,32 @@ class Answer(db.Model):
                                      backref=db.backref('answers', lazy=True))
     
     def serialize(self):
-        return {
-            "id": self.id,
-            "question_id": self.question_id,
-            "answer_text": self.answer_text,
-            "selected_options": [option.id for option in self.selected_options]
-        }
+        # Obtener la pregunta para verificar su tipo
+        question = Question.query.get(self.question_id)
+        
+        if question and question.question_type == 'locations':
+            # Para preguntas tipo 'locations', mostrar los nombres de las ubicaciones
+            location_names = []
+            for option in self.selected_options:
+                if option.location_id:
+                    location = Location.query.get(option.location_id)
+                    if location:
+                        location_names.append(location.name)
+            
+            return {
+                "id": self.id,
+                "question_id": self.question_id,
+                "answer_text": self.answer_text,
+                "selected_options": location_names  # Devolver solo los nombres de las ubicaciones
+            }
+        else:
+            # Para otros tipos de preguntas, mantener el comportamiento original
+            return {
+                "id": self.id,
+                "question_id": self.question_id,
+                "answer_text": self.answer_text,
+                "selected_options": [option.option_text for option in self.selected_options]
+            }
 
 # Tabla de asociación para respuestas de opción múltiple
 answer_options = db.Table('answer_options',

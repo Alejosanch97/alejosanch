@@ -11,12 +11,13 @@ import { Locations } from "./pages/Locations";
 import { Forms } from "./pages/Forms";
 
 
+
 import injectContext from "./store/appContext";
 
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
 import { FormResponse } from "./component/FormResponse";
-
+import { FormAnswers } from "./component/FormAnswers";
 
 const Layout = () => {
     const basename = process.env.BASENAME || "";
@@ -34,6 +35,7 @@ const Layout = () => {
                         <Route path="/locations" element={<Locations />} />
                         <Route path="/forms" element={<Forms />} />
                         <Route path="/forms/:formId/respond" element={<FormResponse />} />
+                        <Route path="/forms/:formId/responses" element={<FormAnswers />} />
                         <Route path="/demo" element={<Demo />} />
                         <Route path="/single/:theid" element={<Single />} />
                         <Route path="*" element={<h1>Not found!</h1>} />

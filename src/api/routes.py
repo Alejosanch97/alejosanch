@@ -280,26 +280,81 @@ def submit_form_response(form_id):
         
         # Procesar cada respuesta
         for answer_data in data['answers']:
+            question = Question.query.get(answer_data['question_id'])
+            if not question:
+                continue
+
             answer = Answer(
                 form_response_id=form_response.id,
-                question_id=answer_data['question_id'],
-                answer_text=answer_data['answer_text']
+                question_id=answer_data['question_id']
             )
             
-            db.session.add(answer)
+            # Si es una pregunta de tipo locations o tiene opciones seleccionadas
+            if question.question_type == 'locations' or answer_data['selected_options']:
+                # Convertir los IDs a enteros
+                option_ids = [int(opt_id) for opt_id in answer_data['selected_options']]
+                
+                if question.question_type == 'locations':
+                    # Para preguntas de tipo locations, crear opciones si no existen
+                    for location_id in option_ids:
+                        location = Location.query.get(location_id)
+                        if location:
+                            # Buscar o crear la opción para esta ubicación
+                            option = QuestionOption.query.filter_by(
+                                question_id=question.id,
+                                location_id=location_id
+                            ).first()
+                            
+                            if not option:
+                                option = QuestionOption(
+                                    question_id=question.id,
+                                    option_text=location.name,
+                                    order=1,  # Puedes ajustar esto según necesites
+                                    location_id=location_id
+                                )
+                                db.session.add(option)
+                                db.session.flush()
+                            
+                            answer.selected_options.append(option)
+                else:
+                    # Para otros tipos de preguntas con opciones
+                    options = QuestionOption.query.filter(
+                        QuestionOption.id.in_(option_ids)
+                    ).all()
+                    answer.selected_options.extend(options)
             
-            # Si hay opciones seleccionadas, agregarlas
-            if answer_data['selected_options']:
-                options = QuestionOption.query.filter(
-                    QuestionOption.id.in_([int(opt_id) for opt_id in answer_data['selected_options']])
-                ).all()
-                answer.selected_options.extend(options)
+            # Guardar el texto de la respuesta si existe
+            if answer_data['answer_text']:
+                answer.answer_text = answer_data['answer_text']
+            
+            db.session.add(answer)
         
         db.session.commit()
-        
         return jsonify(form_response.serialize()), 201
         
     except Exception as e:
         db.session.rollback()
         print("Error processing form response:", str(e))
+        return jsonify({"message": str(e)}), 400
+    
+
+@api.route('/forms/<int:form_id>/responses', methods=['GET'])
+def get_form_responses(form_id):
+    try:
+        form = Form.query.get(form_id)
+        if not form:
+            return jsonify({"message": "Form not found"}), 404
+            
+        responses = FormResponse.query.filter_by(form_id=form_id).all()
+        
+        # Obtener las preguntas del formulario
+        questions = Question.query.filter_by(form_id=form_id).order_by(Question.order).all()
+        
+        return jsonify({
+            "form": form.serialize(),
+            "questions": [q.serialize() for q in questions],
+            "responses": [response.serialize() for response in responses]
+        }), 200
+        
+    except Exception as e:
         return jsonify({"message": str(e)}), 400

@@ -19,6 +19,8 @@ const getState = ({ getStore, getActions, setStore }) => {
             currentUser: JSON.parse(localStorage.getItem("currentUser")) || null,
             locations: [],
             forms: [],
+            formResponses: [],
+            selectedForm: null,
             loading: false,
             error: null
         },
@@ -360,8 +362,17 @@ const getState = ({ getStore, getActions, setStore }) => {
             submitFormResponse: async (formId, answers) => {
                 try {
                     const store = getStore();
-                    // Asegurarse de que la URL esté bien formada
-                    const baseUrl = process.env.BACKEND_URL.replace(/\/+$/, ''); // Remover slashes al final si existen
+                    const baseUrl = process.env.BACKEND_URL.replace(/\/+$/, '');
+                    
+                    // Formatear las respuestas correctamente
+                    const formattedAnswers = answers.map(answer => ({
+                        question_id: parseInt(answer.question_id),
+                        answer_text: answer.answer_text || '',
+                        selected_options: Array.isArray(answer.selected_options) 
+                            ? answer.selected_options.map(opt => opt.toString()) // Asegurarse de que los IDs sean strings
+                            : []
+                    }));
+            
                     const resp = await fetch(`${baseUrl}/api/forms/${formId}/respond`, {
                         method: 'POST',
                         headers: {
@@ -371,7 +382,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                         body: JSON.stringify({
                             form_id: parseInt(formId),
                             user_id: store.currentUser.id,
-                            answers: answers
+                            answers: formattedAnswers
                         })
                     });
             
@@ -386,6 +397,22 @@ const getState = ({ getStore, getActions, setStore }) => {
                     console.error("Error submitting form response:", error);
                     setStore({ error: error.message });
                     return null;
+                }
+            },
+
+            getFormResponses: async (formId) => {
+                try {
+                    const resp = await fetch(`${process.env.BACKEND_URL}/api/forms/${formId}/responses`);
+                    const data = await resp.json();
+                    
+                    if (!resp.ok) {
+                        throw new Error(data.message || 'Error al obtener respuestas');
+                    }
+                    
+                    return data;
+                } catch (error) {
+                    console.error("Error fetching form responses:", error);
+                    throw error;
                 }
             },
 
